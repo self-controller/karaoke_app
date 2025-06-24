@@ -8,10 +8,10 @@
 </head>
 <body>
     <div class="file_upload">
-        <form action="" method="get" enctype="multipart/form-data">
+        <form action="/upload" method="get" enctype="multipart/form-data">
             <label for="audio">audio</label>
-            <input type="file" />
-            <button>Submit</button>
+            <input type="file" name="audio" id="audio" accept=".mp3,.wav, .flac, .m4a, .aac, .ogg, .wma"/>
+            <button type="submit">Submit</button>
         </form>
     </div>
     <script src="script.js"></script>

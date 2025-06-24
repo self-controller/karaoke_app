@@ -4,22 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bear's Karaoke</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='js/script.js') }}">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='js/script.js') }}"> -->
 </head>
 <body>
-    <div class="file_upload">
-        <h1>Audio Separator</h1>
-        <form id="uploadForm" enctype="multipart/form-data">
-            <label for="audio">audio</label>
-            <input type="file" name="audio" id="audio" accept=".mp3,.wav, .flac, .m4a, .aac, .ogg, .wma"/>
-            <button type="submit">Upload and Separate</button>
-        </form>
-        <form id="youtubeForm">
-            <input type="text" id="youtubeUrl" placeholder="Enter Youtube URL" required>
-            <button type="submit">Process</button>
-        </form>
-        <div id="status"></div>
+    <input id="yt-url" type="url" placeholder="Youtube Link">
+    <button id="go">Separate</button>
+    <div>
+        <h1>Vocals</h1>
+        <audio id="vocals" controls></audio>
+        <h2>Accompaniment</h2>
+        <audio id="accompaniment" controls></audio>
     </div>
+    
     <script src="{{url_for('static', filename='js/script.js')}}"></script>
 </body>
 </html>

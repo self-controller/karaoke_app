@@ -1,10 +1,36 @@
 const urlInput = document.getElementById('yt-url');
 const btn = document.getElementById('go');
+const select = document.getElementById('song_select');
+const playerBox = document.getElementById('player');
+const vocalsPlayer = document.getElementById('vocals');
+const accompanimentPlayer = document.getElementById('accompaniment');
+
+async function loadSongList() {
+    const res = await fetch('/api/songs');
+    const songDirs = await res.json();
+    select.innerHTML = '<option value="" disabled selected>— Select a song —</option>';
+    songDirs.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
+    });
+}
+
+select.addEventListener('change', () => {
+    const song = select.value;
+    
+    vocalsPlayer.src = '/static/songs/'+song+'/vocals/'+song+'_vocals.wav';
+    accompanimentPlayer.src = '/static/songs/'+song+'/accompaniment/'+song+'_accompaniment.wav';
+    
+    playerBox.style.display = 'block';
+});
+
+window.addEventListener('DOMContentLoaded', loadSongList);
 
 document.getElementById('go').onclick = async () => {
     youtubeUrl = urlInput.value.trim();
     if (!youtubeUrl) {
-        statusDiv.textContent = "Please enter a Youtube URL";
         return;
     }
 
@@ -19,11 +45,7 @@ document.getElementById('go').onclick = async () => {
             },
             body: JSON.stringify({ url: youtubeUrl})
         });
-        
-        const {vocals, accompaniment} = await response.json();
-        
-        document.getElementById('vocals').src = vocals;
-        document.getElementById('accompaniment').src = accompaniment;
+        await loadSongList();
         } catch (err) {
             alert('Error: ' + err)
         } finally {
@@ -31,3 +53,8 @@ document.getElementById('go').onclick = async () => {
             btn.textContent = 'Separate';
         }
 };
+
+btn.addEventListener('clock', async () => {
+    await loadSongList();
+});
+

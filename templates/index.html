@@ -7,14 +7,26 @@
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='js/script.js') }}"> -->
 </head>
 <body>
-    <input id="yt-url" type="url" placeholder="Youtube Link">
-    <button id="go">Separate</button>
-    <div>
+    <section id="upload">
+        <h1>Upload a Youtube Link</h1>
+        <input id="yt-url" type="url" placeholder="Youtube Link">
+        <button id="go">Separate</button>
+    </section>
+
+    <section id="selection">
+        <h2>Select a song to sing!</h2>
+        <label for="song_select">Choose a song:</label>
+        <select id="song_select">
+            <option value="" disabled>Loading songs...</option>
+        </select>
+    </section>
+
+    <section id="player">
         <h1>Vocals</h1>
         <audio id="vocals" controls></audio>
         <h2>Accompaniment</h2>
         <audio id="accompaniment" controls></audio>
-    </div>
+    </section>
     
     <script src="{{url_for('static', filename='js/script.js')}}"></script>
 </body>

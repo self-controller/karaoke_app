@@ -9,13 +9,10 @@ app = Flask(__name__)
 
 
 
-UPLOAD_FOLDER = 'uploads'
-VOCALS_FOLDER = 'static/vocals'
-ACCOMPANIMENT_FOLDER = 'static/accompaniment'
+SONGS_FOLDER = 'static/songs'
 
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(VOCALS_FOLDER, exist_ok=True)
-os.makedirs(ACCOMPANIMENT_FOLDER, exist_ok=True)
+os.makedirs(SONGS_FOLDER, exist_ok=True)
+os.makedirs('uploads', exist_ok=True)
 
 ALLOWED_EXTENSIONS = {'mp3', 'wav', 'flac', 'm4a', 'aac', 'ogg', 'wma'}
 
@@ -23,6 +20,12 @@ ALLOWED_EXTENSIONS = {'mp3', 'wav', 'flac', 'm4a', 'aac', 'ogg', 'wma'}
 def index():
     return render_template('index.html')
 
+@app.route('/api/songs')
+def song_list():
+    SONG_DIRS = [
+        name for name in os.listdir(SONGS_FOLDER)
+    ]
+    return jsonify(SONG_DIRS)    
 
 def download_youtube_audio(url):
     ydl_opts = {
@@ -39,7 +42,8 @@ def download_youtube_audio(url):
         info = ydl.extract_info(url, download=True)
         filename = ydl.prepare_filename(info)
         base_filename = os.path.splitext(filename)[0]
-        return f"{base_filename}.mp3"
+        return {"soundfile": f"{base_filename}.mp3",
+                "name": info.get('title', '')}
 
 @app.route('/process_youtube', methods=['POST'])
 def process_youtube():
@@ -49,8 +53,19 @@ def process_youtube():
         return jsonify({'error': 'No URL provided'}), 400
     
     try: 
-        audio_path = download_youtube_audio(youtube_url)
+        info = download_youtube_audio(youtube_url)
+        audio_path = info['soundfile']
+        song_name = secure_filename(info['name'])
         base_name = os.path.splitext(os.path.basename(audio_path))[0]
+
+        song_folder = os.path.join(SONGS_FOLDER, song_name)
+        os.makedirs(song_folder, exist_ok=True)
+
+        VOCALS_FOLDER = os.path.join(SONGS_FOLDER, song_name, 'vocals')
+        ACCOMPANIMENT_FOLDER = os.path.join(SONGS_FOLDER, song_name, 'accompaniment')
+
+        os.makedirs(VOCALS_FOLDER, exist_ok=True)
+        os.makedirs(ACCOMPANIMENT_FOLDER, exist_ok=True)
 
         output_dir = 'static/separated'
         os.makedirs(output_dir, exist_ok=True)
@@ -60,14 +75,14 @@ def process_youtube():
         vocals_src = os.path.join(model_folder, 'vocals.wav')
         accomp_src = os.path.join(model_folder, 'no_vocals.wav')
         
-        vocals = os.path.join(VOCALS_FOLDER, f'{base_name}_vocals.wav')
-        accompaniment = os.path.join(ACCOMPANIMENT_FOLDER, f'{base_name}_accompaniment.wav')
+        vocals = os.path.join(VOCALS_FOLDER, f'{song_name}_vocals.wav')
+        accompaniment = os.path.join(ACCOMPANIMENT_FOLDER, f'{song_name}_accompaniment.wav')
         os.replace(vocals_src, vocals)
         os.replace(accomp_src, accompaniment)
 
         return jsonify({
-            'vocals': url_for('static', filename=f'vocals/{base_name}_vocals.wav'),
-            'accompaniment': url_for('static', filename=f'accompaniment/{base_name}_accompaniment.wav')           
+            'vocals': url_for('static', filename=f'songs/{song_name}/vocals/{song_name}_vocals.wav'),
+            'accompaniment': url_for('static', filename=f'songs/{song_name}/accompaniment/{song_name}_accompaniment.wav')           
         })
     except Exception as e:
         app.logger.exception("process_youtube failed")

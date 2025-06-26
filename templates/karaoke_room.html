@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bear's Karaoke Room: {{track.replace("_", " ")}}</title>
+</head>
+<body>
+    <h1>{{track.replace("_", " ")}}</h1>
+    <section id="player">
+        <h1>Vocals</h1>
+        <audio controls src="{{url_for('static', filename='songs/' ~ track ~ '/vocals/' ~ track ~ '_vocals.wav')}}"></audio>
+        <h2>Accompaniment</h2>
+        <audio controls src="{{url_for('static', filename='songs/' ~ track ~ '/accompaniment/' ~ track ~ '_accompaniment.wav')}}"></audio>
+    </section>
+    <script src="{{url_for('static', filename='js/script.js')}}"></script>
+</body>
+</html>

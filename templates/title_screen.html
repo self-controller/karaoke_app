@@ -4,25 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bear's Karaoke!</title>
-    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='js/script.js') }}"> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Aldrich&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>Welcome to bear's Karaoke!</h1>
-    <section id="upload">
-        <h2>Upload a Youtube Link</h2>
-        <input id="yt-url" type="url" placeholder="Youtube Link">
-        <button id="go">Separate</button>
-    </section>
+    <div id="canvas-container" style="position: relative; width:100%; height: 100%">
+        <canvas id="canvas"></canvas>
+        <div class="overlay-text">
+            <h1>Welcome to bear's Karaoke!</h1>
+            <section id="upload">
+                <h2>Upload a Youtube Link</h2>
+                <input id="yt-url" type="url" placeholder="Youtube Link">
+                <button id="go">Separate</button>
+            </section>
 
-    <section id="selection">
-        <h2>Select a song to sing!</h2>
-        <label for="song_select">Choose a song:</label>
-        <select id="song_select">
-            <option value="" disabled>Loading songs...</option>
-        </select>
-        <button id="start">Sing!</button>
-    </section>
-    
+            <section id="selection">
+                <h2>Select a song to sing!</h2>
+                <label for="song_select">Choose a song:</label>
+                <select id="song_select">
+                    <option value="" disabled>Loading songs...</option>
+                </select>
+                <button id="start">Sing!</button>
+            </section>
+        </div>
+    </div>
     <script src="{{url_for('static', filename='js/script.js')}}"></script>
 </body>
 </html>

@@ -18,7 +18,11 @@ ALLOWED_EXTENSIONS = {'mp3', 'wav', 'flac', 'm4a', 'aac', 'ogg', 'wma'}
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('title_screen.html')
+
+@app.route('/karaoke_room/<song>')
+def karaoke_room(song):
+    return render_template('karaoke_room.html', track=song)
 
 @app.route('/api/songs')
 def song_list():

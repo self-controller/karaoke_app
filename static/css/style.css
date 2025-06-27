@@ -10,19 +10,14 @@ h1 {
     margin: auto;
     width: 100%;
     font-size: 1000;
-    font-family: "Aldrich", sans-serif;
 }
 
-html{
-  height: 100%;
-}
-
-body{
+html, body{
 	margin: 0;
 	padding: 0;
 	height: 100%;
 	overflow: hidden;
-	cursor: none;
+    cursor: none;
 }
 
 #canvas{
@@ -39,18 +34,89 @@ body{
     position: relative;
     width: 100vw;
     height: 100vh;
-    overflow: hidden;
 }
 
 .overlay-text {
     position: absolute;
-    color: white;
+    color: #c286e8;
     width: 100%;
     height: 100%;
     font-size: 3rem;
     text-align: center;
+    pointer-events: none;
+    font-family: "Aldrich", sans-serif;
+    text-shadow:
+    0 0 5px #9d00ff,
+    0 0 10px #9d00ff,
+    0 0 20px #9d00ff,
+    0 0 40px #9d00ff;
 }
 
-.upload {
-    
+#upload {
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  text-align: left;
+  font-size: 1.25rem;
+  pointer-events: auto;
+}
+
+#selection {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  text-align: right;
+  font-size: 1.25rem;
+  pointer-events: auto;
+}
+
+input, button, select {
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+input[type="url"],
+select,
+button {
+  background-color: transparent;
+  border: 2px solid #00caeb;              
+  color: #00caeb;                         
+  font-family: "Aldrich", sans-serif;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  outline: none;
+  margin: 0.5rem 0;
+  width: fit-content;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 8px rgba(0, 202, 235, 0.6); 
+}
+
+input::placeholder {
+  color: #00caeb;
+  opacity: 0.6;
+}
+
+button:hover,
+input:hover,
+select:hover {
+  background-color: rgba(0, 202, 235, 0.1);  
+  box-shadow: 0 0 12px #00caeb, 0 0 24px #00caeb;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(0.98);
+  box-shadow: 0 0 6px #00caeb;
+}
+
+select {
+  appearance: none;            
+  background-image: none;
+  cursor: pointer;
+}
+
+select option {
+  background-color: #060885;   
+  color: #00caeb;
 }

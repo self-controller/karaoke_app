@@ -12,22 +12,24 @@ var light = {
     y: 200
 }
 
-var colors = ["#f5c156", "#e6616b", "#5cd3ad"];
+var colors = ["#00caeb", "#df3f8b", "#060885"];
 
 function drawLight() {
+    const maxRadius = c.width * c.width + c.height * c.height;
+
     ctx.beginPath();
-    ctx.arc(light.x, light.y, 1000, 0, 2 * Math.PI);
+    ctx.arc(light.x, light.y, maxRadius, 0, 2 * Math.PI);
     var gradient = ctx.createRadialGradient(light.x, light.y, 0, light.x, light.y, 1000);
-    gradient.addColorStop(0, "#3b4654");
-    gradient.addColorStop(1, "#2c343f");
-    ctx.fillStyle = gradient;
+    gradient.addColorStop(0, "#222");
+    gradient.addColorStop(1, "#000");
+    ctx.fillStyle = "#000";
     ctx.fill();
 
     ctx.beginPath();
     ctx.arc(light.x, light.y, 20, 0, 2 * Math.PI);
     gradient = ctx.createRadialGradient(light.x, light.y, 0, light.x, light.y, 5);
     gradient.addColorStop(0, "#fff");
-    gradient.addColorStop(1, "#3b4654");
+    gradient.addColorStop(1, "#000");
     ctx.fillStyle = gradient;
     ctx.fill();
 }
@@ -118,7 +120,7 @@ function Box() {
             ctx.lineTo(points[n].startX, points[n].startY);
             ctx.lineTo(points[n].endX, points[n].endY);
             ctx.lineTo(points[i].endX, points[i].endY);
-            ctx.fillStyle = "#2c343f";
+            ctx.fillStyle = "rgba(157, 0, 255, 0.15)";
             ctx.fill();
         };
     }

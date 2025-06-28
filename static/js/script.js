@@ -173,7 +173,7 @@ function collisionDetection(b){
 }
     
     
-    
+if (window.location.pathname === '/'){   
 const urlInput = document.getElementById('yt-url');
 const btn = document.getElementById('go');
 const select = document.getElementById('song_select');
@@ -195,10 +195,11 @@ async function loadSongList() {
 }
 
 select.addEventListener('change', () => {
-    const song = select.value;
+        const song = select.value;
 });
 
 window.addEventListener('DOMContentLoaded', loadSongList);
+
 
 document.getElementById('go').onclick = async () => {
     youtubeUrl = urlInput.value.trim();
@@ -234,3 +235,51 @@ start_btn.addEventListener('click', () => {
     const song = select.value;
     window.location.href = `/karaoke_room/${encodeURIComponent(song)}`;
 });
+}
+
+
+if (window.location.pathname.startsWith("/karaoke_room/")){
+    window.addEventListener('DOMContentLoaded', () => {
+        const audio = document.getElementById('player-audio');
+        const playBtn = document.getElementById('play-btn');
+        const seek = document.getElementById('seek');
+        const time = document.getElementById('time');
+
+        console.log(audio, playBtn, seek, time);
+
+        function togglePlay(){
+            if (audio.paused) {
+                audio.play();
+                playBtn.textContent = '🪩';
+            } else {
+                audio.pause();
+                playBtn.textContent = '🎤';
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code == 'Space' && e.target.tagName !== 'INPUT'){
+                e.preventDefault();
+                togglePlay();
+            }
+        })
+        playBtn.addEventListener('click', togglePlay);
+        playBtn.addEventListener('keydown', (e) => {
+            if (e.code == 'Space' && e.target.tagName !== 'INPUT'){
+                e.preventDefault();
+                togglePlay();
+            }
+        })
+
+        audio.addEventListener('timeupdate', () => {
+            seek.value = (audio.currentTime / audio.duration) *100;
+            const mins = Math.floor(audio.currentTime / 60);
+            const secs = Math.floor(audio.currentTime % 60).toString().padStart(2,'0');
+            time.textContent = `${mins}:${secs}`;
+        });
+
+        seek.addEventListener('input', () => {
+            audio.currentTime = (seek.value / 100) * audio.duration;
+        });
+    });
+}

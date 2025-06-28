@@ -4,10 +4,10 @@ import yt_dlp
 import os
 import shlex
 from werkzeug.utils import secure_filename
+import whisper
 
 app = Flask(__name__)
-
-
+transcribe_model = whisper.load_model("base")
 
 SONGS_FOLDER = 'static/songs'
 
@@ -91,6 +91,19 @@ def process_youtube():
     except Exception as e:
         app.logger.exception("process_youtube failed")
         return jsonify({'error': str(e)}), 500
+
+# @app.route('/transcribe', methods=['POST'])
+# def transcribe():
+#     data = request.get_json()
+#     audio_path = data.get("audio_path")
+#     if not audio_path:
+#         return jsonify(error="No audio_path provided"), 400
+#     result = transcribe_model(audio_path, word_timestamps=False)
+#     segments = [
+#         {"start": seg["start"], "end": seg["end"], "text": seg["text"].strip()}
+#         for seg in result["segments"]
+#     ]
+#     return jsonify(segments)
 
 if __name__ == '__main__':
     app.run(debug=True)

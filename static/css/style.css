@@ -52,6 +52,10 @@ html, body{
     0 0 40px #9d00ff;
 }
 
+.overlay-text .player {
+  pointer-events: auto;
+}
+
 #upload {
   position: absolute;
   bottom: 2rem;
@@ -120,3 +124,39 @@ select option {
   background-color: #060885;   
   color: #00caeb;
 }
+
+audio {
+    pointer-events: all;
+}
+
+.player {
+    width: 455px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid #00caeb;
+    border-radius: 8px;
+    padding: 10px 10px;
+    box-shadow: 0 0 12px #00caeb;
+    font-family: "Aldrich", sans-serif;
+    margin-left: auto;
+    margin-right: auto;
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#play-btn {
+    border-color: #6A42C2;
+    pointer-events: auto;
+}
+
+#seek {
+  width: 200px;
+  accent-color: #00caeb;
+  pointer-events: auto;
+}
+

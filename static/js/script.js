@@ -28,7 +28,7 @@ function drawLight() {
     ctx.beginPath();
     ctx.arc(light.x, light.y, 20, 0, 2 * Math.PI);
     gradient = ctx.createRadialGradient(light.x, light.y, 0, light.x, light.y, 5);
-    gradient.addColorStop(0, "#fff");
+    gradient.addColorStop(0, "#000");
     gradient.addColorStop(1, "#000");
     ctx.fillStyle = gradient;
     ctx.fill();
@@ -174,112 +174,179 @@ function collisionDetection(b){
     
     
 if (window.location.pathname === '/'){   
-const urlInput = document.getElementById('yt-url');
-const btn = document.getElementById('go');
-const select = document.getElementById('song_select');
-const playerBox = document.getElementById('player');
-const vocalsPlayer = document.getElementById('vocals');
-const accompanimentPlayer = document.getElementById('accompaniment');
-const start_btn = document.getElementById('start');
+    const urlInput = document.getElementById('yt-url');
+    const btn = document.getElementById('go');
+    const select = document.getElementById('song_select');
+    const start_btn = document.getElementById('start');
 
-async function loadSongList() {
-    const res = await fetch('/api/songs');
-    const songDirs = await res.json();
-    select.innerHTML = '<option value="" disabled selected>— Select a song —</option>';
-    songDirs.forEach(name => {
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name.replaceAll("_", " ");
-        select.appendChild(opt);
-    });
-}
-
-select.addEventListener('change', () => {
-        const song = select.value;
-});
-
-window.addEventListener('DOMContentLoaded', loadSongList);
-
-
-document.getElementById('go').onclick = async () => {
-    youtubeUrl = urlInput.value.trim();
-    if (!youtubeUrl) {
-        return;
+    async function loadSongList() {
+        const res = await fetch('/api/songs');
+        const songDirs = await res.json();
+        select.innerHTML = '<option value="" disabled selected>— Select a song —</option>';
+        songDirs.forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name.replaceAll("_", " ");
+            select.appendChild(opt);
+        });
     }
 
-    btn.disabled = true;
-    btn.textContent = 'Processing...';
+    select.addEventListener('change', () => {
+            const song = select.value;
+    });
 
-    try {
-        const response = await fetch('/process_youtube', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ url: youtubeUrl})
-        });
-        await loadSongList();
-        } catch (err) {
-            alert('Error: ' + err)
-        } finally {
+    window.addEventListener('DOMContentLoaded', loadSongList);
+
+
+    document.getElementById('go').onclick = async () => {
+        youtubeUrl = urlInput.value.trim();
+        if (!youtubeUrl) {
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Processing...';
+
+        try {
+            const response = await fetch('/process_youtube', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: youtubeUrl})
+            });
+
+            const songName = await response.json();
+
+            const trans = await fetch(`/transcribe/${songName}`)
+            await loadSongList();
+            } catch (err) {
+                alert('Error: ' + err)
+            }  finally {
             btn.disabled = false;
             btn.textContent = 'Separate';
         }
-};
+    };
 
-btn.addEventListener('click', async () => {
-    await loadSongList();
-});
+    btn.addEventListener('click', async () => {
+        await loadSongList();
+    });
 
-start_btn.addEventListener('click', () => {
-    const song = select.value;
-    window.location.href = `/karaoke_room/${encodeURIComponent(song)}`;
-});
+    start_btn.addEventListener('click', () => {
+        const song = select.value;
+        window.location.href = `/karaoke_room/${encodeURIComponent(song)}`;
+    });
+
+
 }
 
 
 if (window.location.pathname.startsWith("/karaoke_room/")){
-    window.addEventListener('DOMContentLoaded', () => {
-        const audio = document.getElementById('player-audio');
-        const playBtn = document.getElementById('play-btn');
-        const seek = document.getElementById('seek');
-        const time = document.getElementById('time');
+    let hideTimeout;
+    const elementsToHide = document.querySelectorAll('.hide_on_idle');
+    const idleDelay = 3000;
 
-        console.log(audio, playBtn, seek, time);
+    function hideElements() {
+        elementsToHide.forEach(el => el.style.opacity = '0');
+        document.body.classList.add('hide_cursor');
+    }
+    
+    function showElements() {
+        elementsToHide.forEach(el => el.style.opacity = '1');
+        document.body.classList.remove('hide_cursor');
+    }
+    
+    function resetIdleTimer() {
+        showElements();
+        clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(hideElements, idleDelay);
+    }
 
-        function togglePlay(){
-            if (audio.paused) {
-                audio.play();
-                playBtn.textContent = '🪩';
+    document.addEventListener('mousemove', resetIdleTimer);
+
+    resetIdleTimer();
+
+    const audio = document.getElementById('player-audio');
+    const playBtn = document.getElementById('play-btn');
+    const seek = document.getElementById('seek');
+    const time = document.getElementById('time');
+    const lyricsContainer = document.getElementById('lyrics');
+    let start_time = Number.MAX_VALUE;
+    const song_title = document.getElementById('song_title');
+
+    console.log(audio, playBtn, seek, time);
+
+    var song_name = audio.src.split('/').pop().split('_accompaniment.wav')[0];
+
+    async function loadLyrics(song_name) {
+        const res = await fetch(`/static/trans_dir/${song_name}_trans.json`);
+        lyrics = await res.json();
+
+        lyricsContainer.innerHTML = '';
+        for (const segment of lyrics) {
+            if (start_time > parseFloat(segment.start)){
+                start_time = segment.start;
+            }
+            const p = document.createElement('p');
+            p.textContent = segment.text;
+            p.dataset.start = segment.start;
+            p.dataset.end = segment.end;
+            lyricsContainer.appendChild(p);
+        }
+    }
+
+    function togglePlay(){
+        if (audio.paused) {
+            audio.play();
+            playBtn.textContent = '🪩';
+        } else {
+            audio.pause();
+            playBtn.textContent = '🎤';
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.code == 'Space' && e.target.tagName !== 'INPUT'){
+            e.preventDefault();
+            togglePlay();
+        }
+    })
+    playBtn.addEventListener('click', togglePlay);
+    playBtn.addEventListener('keydown', (e) => {
+        if (e.code == 'Space' && e.target.tagName !== 'INPUT'){
+            e.preventDefault();
+            togglePlay();
+        }
+    })
+
+    audio.addEventListener('timeupdate', () => {
+        const lines = lyricsContainer.querySelectorAll('p');
+        seek.value = (audio.currentTime / audio.duration) *100;
+        const mins = Math.floor(audio.currentTime / 60);
+        const secs = Math.floor(audio.currentTime % 60).toString().padStart(2,'0');
+        time.textContent = `${mins}:${secs}`;
+        for (const line of lines){
+            const start = parseFloat(line.dataset.start);
+            const end = parseFloat(line.dataset.end);
+            if (audio.currentTime >= start && audio.currentTime < end){
+                line.classList.add('active');
             } else {
-                audio.pause();
-                playBtn.textContent = '🎤';
+                line.classList.remove('active');
             }
         }
+        if (audio.currentTime > start_time){
+            song_title.style.visibility = 'hidden';
+        } else{
+            song_title.style.visibility = 'visible';
+        }
 
-        document.addEventListener('keydown', (e) => {
-            if (e.code == 'Space' && e.target.tagName !== 'INPUT'){
-                e.preventDefault();
-                togglePlay();
-            }
-        })
-        playBtn.addEventListener('click', togglePlay);
-        playBtn.addEventListener('keydown', (e) => {
-            if (e.code == 'Space' && e.target.tagName !== 'INPUT'){
-                e.preventDefault();
-                togglePlay();
-            }
-        })
-
-        audio.addEventListener('timeupdate', () => {
-            seek.value = (audio.currentTime / audio.duration) *100;
-            const mins = Math.floor(audio.currentTime / 60);
-            const secs = Math.floor(audio.currentTime % 60).toString().padStart(2,'0');
-            time.textContent = `${mins}:${secs}`;
-        });
-
-        seek.addEventListener('input', () => {
-            audio.currentTime = (seek.value / 100) * audio.duration;
-        });
     });
+
+    seek.addEventListener('input', () => {
+        audio.currentTime = (seek.value / 100) * audio.duration;
+    });
+    window.addEventListener('DOMContentLoaded', async () => {
+        await loadLyrics(song_name);
+    });
+
 }

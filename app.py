@@ -5,6 +5,7 @@ import os
 import shlex
 from werkzeug.utils import secure_filename
 import whisper
+import json
 
 app = Flask(__name__)
 transcribe_model = whisper.load_model("base")
@@ -84,26 +85,27 @@ def process_youtube():
         os.replace(vocals_src, vocals)
         os.replace(accomp_src, accompaniment)
 
-        return jsonify({
-            'vocals': url_for('static', filename=f'songs/{song_name}/vocals/{song_name}_vocals.wav'),
-            'accompaniment': url_for('static', filename=f'songs/{song_name}/accompaniment/{song_name}_accompaniment.wav')           
-        })
+        return jsonify(song_name)
     except Exception as e:
         app.logger.exception("process_youtube failed")
         return jsonify({'error': str(e)}), 500
 
-# @app.route('/transcribe', methods=['POST'])
-# def transcribe():
-#     data = request.get_json()
-#     audio_path = data.get("audio_path")
-#     if not audio_path:
-#         return jsonify(error="No audio_path provided"), 400
-#     result = transcribe_model(audio_path, word_timestamps=False)
-#     segments = [
-#         {"start": seg["start"], "end": seg["end"], "text": seg["text"].strip()}
-#         for seg in result["segments"]
-#     ]
-#     return jsonify(segments)
+@app.route('/transcribe/<song>')
+def transcribe(song):
+    os.makedirs(os.path.join('static', 'trans_dir'), exist_ok=True)
+    audio_path = os.path.join('static','songs', song ,'vocals',f"{song}_vocals.wav")
+    if not os.path.exists(audio_path):
+        return jsonify(error="No audio_path provided"), 400
+    result = transcribe_model.transcribe(audio_path)
+    segments = [
+        {"start": seg["start"], "end": seg["end"], "text": seg["text"].strip()} for seg in result["segments"]
+    ]
+    
+    trans_path = os.path.join('static', 'trans_dir', f"{song}_trans.json")
+    with open(trans_path, 'w', encoding='utf-8') as f:
+        json.dump(segments, f, ensure_ascii=False, indent=2)
+
+    return jsonify(segments)
 
 if __name__ == '__main__':
     app.run(debug=True)
